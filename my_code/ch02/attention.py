@@ -33,3 +33,21 @@ def attention(query, key, value, dropout=None):
     # 返回加权和结果以及注意力权重
     return torch.matmul(p_attn, value), p_attn
 
+"""
+自注意力机制是注意力机制的一种特殊形式，
+其中查询（Query）、键（Key）和值（Value）都来自同一序列。
+所谓自注意力，即是计算本身序列中每个元素对其他元素的注意力分布
+"""
+def self_attention(x, dropout=None):
+    """
+    x: 输入序列矩阵
+    """
+
+    # 在自注意力中，查询、键和值都来自同一输入 x
+    query = x
+    key = x
+    value = x
+
+    # 调用通用的注意力计算函数
+    return attention(query, key, value, dropout)
+
