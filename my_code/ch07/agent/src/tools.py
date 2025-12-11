@@ -107,8 +107,6 @@ def search_wikipedia(query: str) -> str:
     return "\n\n".join(summaries)
 
 # 获取当前温度信息
-
-
 def get_current_temperature(latitude: float, longitude: float) -> str:
     """
     获取指定经纬度位置的当前温度。
