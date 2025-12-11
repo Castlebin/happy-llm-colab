@@ -1,112 +1,86 @@
-from datetime import datetime
+import datetime
 import wikipedia
 import requests
 
-# 获取当前时间和日期
+# 获取当前日期和时间
 def get_current_datetime() -> str:
     """
-    获取当前日期和时间
-    :return: 当前日期和时间的字符串表示，格式为 'YYYY-MM-DD HH:MM:SS'
+    获取真实的当前日期和时间。
+    :return: 当前日期和时间的字符串表示。
     """
-    current_datetime = datetime.now()
-    formated_datetime = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
-    return formated_datetime
+    current_datetime = datetime.datetime.now()
+    formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+    return formatted_datetime
 
-# 计算两个浮点数的和
-def add(a: float, b: float) -> float:
+def add(a: float, b: float):
     """
-    计算两个浮点数的和
-    :param a: 第一个浮点数
-    :param b: 第二个浮点数
-    :return: 两个浮点数的和
+    计算两个浮点数的和。
+    :param a: 第一个浮点数。
+    :param b: 第二个浮点数。
+    :return: 两个浮点数的和。
     """
-    return a + b
+    return str(a + b)
 
-# 计算两个浮点数的差
-def subtract(a: float, b: float) -> float:
+def mul(a: float, b: float):
     """
-    计算两个浮点数的差
-    :param a: 第一个浮点数
-    :param b: 第二个浮点数
-    :return: 两个浮点数的差
+    计算两个浮点数的积。
+    :param a: 第一个浮点数。
+    :param b: 第二个浮点数。
+    :return: 两个浮点数的积。
     """
-    return a - b
+    return str(a * b)
 
-# 计算两个浮点数的积
-def multiply(a: float, b: float) -> float:
+def compare(a: float, b: float):
     """
-    计算两个浮点数的积
-    :param a: 第一个浮点数
-    :param b: 第二个浮点数
-    :return: 两个浮点数的积
-    """
-    return a * b
-
-# 计算两个浮点数的商
-def divide(a: float, b: float) -> float:
-    """
-    计算两个浮点数的商
-    :param a: 第一个浮点数
-    :param b: 第二个浮点数
-    :return: 两个浮点数的商
-    """
-    if b == 0:
-        raise ValueError("除数不能为零")
-    return a / b
-
-# 比较两个浮点数
-def compare_numbers(a: float, b: float) -> str:
-    """
-    比较两个浮点数的大小
-    :param a: 第一个浮点数
-    :param b: 第二个浮点数
-    :return: 比较结果字符串
+    比较两个浮点数的大小。
+    :param a: 第一个浮点数。
+    :param b: 第二个浮点数。
+    :return: 比较结果的字符串表示。
     """
     if a > b:
-        return f"{a} 大于 {b}"
+        return f'{a} is greater than {b}'
     elif a < b:
-        return f"{a} 小于 {b}"
+        return f'{b} is greater than {a}'
     else:
-        return f"{a} 等于 {b}"
+        return f'{a} is equal to {b}'
 
-# 统计字符串中某个字母出现的次数
-def count_letter_in_string(input_string: str, letter: str) -> int:
+def count_letter_in_string(a: str, b: str):
     """
-    统计字符串中某个字母出现的次数
-    :param input_string: 输入的字符串
-    :param letter: 要统计的字母
-    :return: 字母在字符串中出现的次数
+    统计字符串中某个字母的出现次数。
+    :param a: 要搜索的字符串。
+    :param b: 要统计的字母。
+    :return: 字母在字符串中出现的次数。
     """
-    count = str(input_string).count(letter)
-    return count
+    string = a.lower()
+    letter = b.lower()
+    
+    count = string.count(letter)
+    return(f"The letter '{letter}' appears {count} times in the string.")
 
-# 在维基百科中搜索指定查询的前 3 个页面摘要
 def search_wikipedia(query: str) -> str:
     """
-    在维基百科中搜索指定查询的前 3 个页面摘要
-    :param query: 搜索查询字符串
-    :return: 前 3 个页面的摘要
+    在维基百科中搜索指定查询的前三个页面摘要。
+    :param query: 要搜索的查询字符串。
+    :return: 包含前三个页面摘要的字符串。
     """
-    page_titles = wikipedia.search(query, results=3)
+    page_titles = wikipedia.search(query)
     summaries = []
-    for title in page_titles:
+    for page_title in page_titles[: 3]:  # 取前三个页面标题
         try:
-            # 使用 page 方法获取页面内容
-            wiki_page = wikipedia.page(title, auto_suggest=False)
+            # 使用 wikipedia 模块的 page 函数，获取指定标题的维基百科页面对象。
+            wiki_page = wikipedia.page(title=page_title, auto_suggest=False)
             # 获取页面摘要
-            summaries.append(f"页面: {title}\n摘要: {wiki_page.summary}")
+            summaries.append(f"页面: {page_title}\n摘要: {wiki_page.summary}")
         except (
-            wikipedia.exceptions.PageError,
-            wikipedia.exceptions.DisambiguationError,
+                wikipedia.exceptions.PageError,
+                wikipedia.exceptions.DisambiguationError,
         ):
             pass
-        
     if not summaries:
-        return "未找到相关的维基百科页面。"
-    
+        return "维基百科没有搜索到合适的结果"
     return "\n\n".join(summaries)
 
-# 获取当前温度信息
+
 def get_current_temperature(latitude: float, longitude: float) -> str:
     """
     获取指定经纬度位置的当前温度。

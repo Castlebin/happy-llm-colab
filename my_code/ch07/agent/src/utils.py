@@ -1,7 +1,7 @@
 import inspect
+from datetime import datetime
+import pprint
 
-# 为了使模型能够理解工具函数的功能，首先我们需要提供清晰的文档字符串。
-# 另外，我们需要将他们转换成模型可以理解的 JSON Schema 格式。
 def function_to_json(func) -> dict:
     # 定义 Python 类型到 JSON 数据类型的映射
     type_map = {

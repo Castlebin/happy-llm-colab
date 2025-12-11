@@ -1,9 +1,8 @@
 from openai import OpenAI
 import json
 from typing import List, Dict, Any
-from utils import function_to_json
-# 导入我们定义好的工具函数
-from tools import *
+from src.utils import function_to_json
+from src.tools import get_current_datetime, add, compare, count_letter_in_string, search_wikipedia, get_current_temperature
 
 import pprint
 
@@ -22,7 +21,7 @@ Agent 的工作流程如下：
 6. Agent 将最终回答返回给用户
 """
 class Agent:
-    def __init__(self, client: OpenAI, model: str = "Qwen/Qwen2.5-32B-Instruct", 
+    def __init__(self, client: OpenAI, model: str = "Qwen/Qwen2.5-32B-Instruct",
                  tools: List=[], verbose : bool = True):
         self.client = client
         self.tools = tools
@@ -51,7 +50,6 @@ class Agent:
         }
 
     def get_completion(self, prompt) -> str:
-
         self.messages.append({"role": "user", "content": prompt})
 
         # 获取模型的完成响应
@@ -62,39 +60,42 @@ class Agent:
             stream=False,
         )
         
-        # 检查模型是否调用了工具
         if response.choices[0].message.tool_calls:
-            self.messages.append({
+            # 将包含 tool_calls 的完整 assistant 消息添加到历史中
+            assistant_message = {
                 "role": "assistant",
                 "content": response.choices[0].message.content,
-            })
-            
-            # 处理每个工具调用
+                "tool_calls": [
+                    {
+                        "id": tool_call.id,
+                        "type": "function",
+                        "function": {
+                            "name": tool_call.function.name,
+                            "arguments": tool_call.function.arguments
+                        }
+                    }
+                    for tool_call in response.choices[0].message.tool_calls
+                ]
+            }
+            self.messages.append(assistant_message)
+
+            # 处理工具调用
+            tool_list = []
             for tool_call in response.choices[0].message.tool_calls:
-                # 处理工具
-                tool_list = []
-                tool_response = self.handle_tool_call(tool_call)
-                # 将工具响应添加到消息列表中
-                self.messages.append(tool_response)
+                # 处理工具调用并将结果添加到消息列表中
+                self.messages.append(self.handle_tool_call(tool_call))
                 tool_list.append([tool_call.function.name, tool_call.function.arguments])
-                
             if self.verbose:
-                print("工具调用:", response.choices[0].message.content, tool_list)
-                
+                print("调用工具：", response.choices[0].message.content, tool_list)
             # 再次获取模型的完成响应，这次包含工具调用的结果
-            final_response = self.client.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self.model,
                 messages=self.messages,
                 tools=self.get_tool_schema(),
                 stream=False,
             )
-            
-        # 将模型的最终响应添加到消息列表中
-        self.messages.append({
-            "role": "assistant",
-            "content": final_response.choices[0].message.content,
-        })
-        
-        return final_response.choices[0].message.content
-    
-    
+
+        # 将模型的完成响应添加到消息列表中
+        self.messages.append({"role": "assistant", "content": response.choices[0].message.content})
+        return response.choices[0].message.content
+
