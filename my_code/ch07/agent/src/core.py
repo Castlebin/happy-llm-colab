@@ -12,6 +12,15 @@ SYSTEM_PROMPT = """
 当用户的问题需要调用工具时，你可以从提供的工具列表中调用适当的工具函数。
 """
 
+"""
+Agent 的工作流程如下：
+1. 接收用户输入
+2. 调用大模型（如：Qwen），并告知它我们提供了哪些工具
+3. 如果大模型决定调用工具，那么 Agent 会解析工具调用的信息，并执行相应的工具函数
+4. Agent 将工具函数的结果返回给大模型，继续对话
+5. 模型根据工具的结果生成最终回答
+6. Agent 将最终回答返回给用户
+"""
 class Agent:
     def __init__(self, client: OpenAI, model: str = "Qwen/Qwen2.5-32B-Instruct", 
                  tools: List=[], verbose : bool = True):
