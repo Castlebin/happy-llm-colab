@@ -12,7 +12,8 @@ SYSTEM_PROMPT = """
 """
 
 class Agent:
-    def __init__(self, client: OpenAI, model: str = "Qwen/Qwen2.5-32B-Instruct", tools: List=[], verbose : bool = True):
+    def __init__(self, client: OpenAI, model: str = "Qwen/Qwen2.5-32B-Instruct",
+                 tools: List=[], verbose : bool = True):
         self.client = client
         self.tools = tools
         self.model = model
@@ -40,7 +41,6 @@ class Agent:
         }
 
     def get_completion(self, prompt) -> str:
-
         self.messages.append({"role": "user", "content": prompt})
 
         # 获取模型的完成响应
@@ -50,6 +50,7 @@ class Agent:
             tools=self.get_tool_schema(),
             stream=False,
         )
+        
         if response.choices[0].message.tool_calls:
             # 将包含 tool_calls 的完整 assistant 消息添加到历史中
             assistant_message = {
@@ -88,7 +89,4 @@ class Agent:
         # 将模型的完成响应添加到消息列表中
         self.messages.append({"role": "assistant", "content": response.choices[0].message.content})
         return response.choices[0].message.content
-
-
-    
 
