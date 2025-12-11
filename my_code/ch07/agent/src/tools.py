@@ -1,5 +1,6 @@
 from datetime import datetime
 import wikipedia
+import requests
 
 # 获取当前时间和日期
 def get_current_datetime() -> str:
@@ -10,6 +11,63 @@ def get_current_datetime() -> str:
     current_datetime = datetime.now()
     formated_datetime = current_datetime.strftime('%Y-%m-%d %H:%M:%S')
     return formated_datetime
+
+# 计算两个浮点数的和
+def add(a: float, b: float) -> float:
+    """
+    计算两个浮点数的和
+    :param a: 第一个浮点数
+    :param b: 第二个浮点数
+    :return: 两个浮点数的和
+    """
+    return a + b
+
+# 计算两个浮点数的差
+def subtract(a: float, b: float) -> float:
+    """
+    计算两个浮点数的差
+    :param a: 第一个浮点数
+    :param b: 第二个浮点数
+    :return: 两个浮点数的差
+    """
+    return a - b
+
+# 计算两个浮点数的积
+def multiply(a: float, b: float) -> float:
+    """
+    计算两个浮点数的积
+    :param a: 第一个浮点数
+    :param b: 第二个浮点数
+    :return: 两个浮点数的积
+    """
+    return a * b
+
+# 计算两个浮点数的商
+def divide(a: float, b: float) -> float:
+    """
+    计算两个浮点数的商
+    :param a: 第一个浮点数
+    :param b: 第二个浮点数
+    :return: 两个浮点数的商
+    """
+    if b == 0:
+        raise ValueError("除数不能为零")
+    return a / b
+
+# 比较两个浮点数
+def compare_numbers(a: float, b: float) -> str:
+    """
+    比较两个浮点数的大小
+    :param a: 第一个浮点数
+    :param b: 第二个浮点数
+    :return: 比较结果字符串
+    """
+    if a > b:
+        return f"{a} 大于 {b}"
+    elif a < b:
+        return f"{a} 小于 {b}"
+    else:
+        return f"{a} 等于 {b}"
 
 # 统计字符串中某个字母出现的次数
 def count_letter_in_string(input_string: str, letter: str) -> int:
@@ -48,3 +106,54 @@ def search_wikipedia(query: str) -> str:
     
     return "\n\n".join(summaries)
 
+# 获取当前温度信息
+
+
+def get_current_temperature(latitude: float, longitude: float) -> str:
+    """
+    获取指定经纬度位置的当前温度。
+    :param latitude: 纬度坐标。
+    :param longitude: 经度坐标。
+    :return: 当前温度的字符串表示。
+    """
+
+    # Open Meteo API 的URL
+    open_meteo_url = "https://api.open-meteo.com/v1/forecast"
+
+    # 请求参数
+    params = {
+        'latitude': latitude,
+        'longitude': longitude,
+        'hourly': 'temperature_2m',
+        'forecast_days': 1,
+    }
+
+    # 发送 API 请求
+    response = requests.get(open_meteo_url, params=params)
+
+    # 检查响应状态码
+    if response.status_code == 200:
+        # 解析 JSON 响应
+        results = response.json()
+    else:
+        # 处理请求失败的情况
+        raise Exception(f"API Request failed with status code: {response.status_code}")
+
+    # 获取当前 UTC 时间
+    current_utc_time = datetime.datetime.now(datetime.UTC)
+
+    # 将时间字符串转换为 datetime 对象
+    time_list = [datetime.datetime.fromisoformat(time_str).replace(tzinfo=datetime.timezone.utc) for time_str in
+                 results['hourly']['time']]
+
+    # 获取温度列表
+    temperature_list = results['hourly']['temperature_2m']
+
+    # 找到最接近当前时间的索引
+    closest_time_index = min(range(len(time_list)), key=lambda i: abs(time_list[i] - current_utc_time))
+
+    # 获取当前温度
+    current_temperature = temperature_list[closest_time_index]
+
+    # 返回当前温度的字符串形式
+    return f'现在温度是 {current_temperature}°C'
