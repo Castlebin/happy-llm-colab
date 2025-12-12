@@ -5,8 +5,8 @@ from openai import OpenAI
 
 import os
 
-API_KEY=os.getenv("DASHSCOPE_API_KEY")
-BASE_URL=os.environ.get("DASHSCOPE_BASE_URL","https://dashscope.aliyuncs.com/compatible-mode/v1")
+API_KEY=os.getenv("SILICONFLOW_API_KEY")
+BASE_URL=os.environ.get("SILICONFLOW_BASE_URL","https://api.siliconflow.cn/v1")
 
 if __name__ == "__main__":
     client = OpenAI(
@@ -14,7 +14,7 @@ if __name__ == "__main__":
         base_url=BASE_URL,
     )
 
-    MODEL_NAME = 'qwen2.5-32b-instruct'
+    MODEL_NAME = 'Qwen/Qwen2.5-32B-Instruct'
     
     agent = Agent(
         client=client,
